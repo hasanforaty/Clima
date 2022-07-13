@@ -10,6 +10,10 @@ class NetworkHelper {
     try {
       Uri uri = Uri.parse(url);
       var httpResult = await http.get(uri);
+      if (httpResult.statusCode != 200) {
+        throw http.ClientException(
+            "${httpResult.statusCode.toString()}:${httpResult.body}");
+      }
       var body = httpResult.body;
       return jsonDecode(body);
     } on Exception catch (e) {
