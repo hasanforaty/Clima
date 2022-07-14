@@ -1,4 +1,7 @@
+import 'package:clima/utilities/constants.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Location {
   double latitude, longitude;
@@ -35,6 +38,16 @@ class Location {
   static Future<Location> getCurrentLocation() async {
     var result = await _getLocation();
     return Location(result.latitude, result.longitude);
+  }
+
+  static Future<Location> getLocationByName({required String name}) async {
+    var url = Uri.parse("$kGetLocationUrl?imit=5&q=$name&appid=$kApiKey");
+    var responce = await http.get(url);
+    if (responce.statusCode != 200) {
+      return Future.error(Exception(responce.body));
+    }
+    var jsonObject = jsonDecode(responce.body);
+    return Location(jsonObject[0]["lat"], jsonObject[0]["lon"]);
   }
 
   @override

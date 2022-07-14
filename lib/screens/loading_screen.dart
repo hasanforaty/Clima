@@ -1,24 +1,25 @@
+import 'package:clima/screens/location_screen.dart';
 import 'package:clima/services/location.dart';
 import 'package:clima/services/networking.dart';
 import 'package:clima/utilities/constants.dart';
+import 'package:clima/services/weather.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class LoadingScreen extends StatefulWidget {
-  late double latitude, longitude;
   @override
   _LoadingScreenState createState() => _LoadingScreenState();
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  void getLocation() async {
+  void getLocation(BuildContext context) async {
     try {
-      var location = await Location.getCurrentLocation();
-      widget.latitude = location.latitude;
-      widget.longitude = location.longitude;
-      var networkHelper = NetworkHelper(
-          "https://api.openweathermap.org/data/2.5/weather?lat=${widget.latitude}&lon=${widget.longitude}&appid=$kApiKey");
-      var data = await networkHelper.getData();
-      print(data);
+      var data = await WeatherModel().getCurrentLocationWeather();
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        return LocationScreen(
+          locationWeather: data,
+        );
+      }));
     } on Exception catch (e) {
       print(e);
     }
@@ -26,8 +27,12 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    getLocation();
-    return Scaffold();
+    getLocation(context);
+    return Scaffold(
+      body: Center(
+        child: Lottie.asset("assets/loading_gray.json"),
+      ),
+    );
   }
 
   @override

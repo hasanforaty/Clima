@@ -1,12 +1,41 @@
+import 'package:clima/screens/city_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:clima/utilities/constants.dart';
+import 'package:clima/services/weather.dart';
+import 'package:clima/services/location.dart';
+import 'package:lottie/lottie.dart';
 
 class LocationScreen extends StatefulWidget {
+  final locationWeather;
+
+  LocationScreen({required this.locationWeather});
+
   @override
   _LocationScreenState createState() => _LocationScreenState();
 }
 
 class _LocationScreenState extends State<LocationScreen> {
+  late int temperature;
+  late String weatherIcon;
+  late String cityName;
+  late String weatherMessage;
+  final weather = WeatherModel();
+  void updateUI(dynamic weatherData) {
+    setState(() {
+      this.temperature = (weatherData["main"]["temp"] as double).toInt();
+      var condition = weatherData["weather"][0]["id"] as int;
+      this.cityName = weatherData["name"];
+      this.weatherMessage = weather.getMessage(temperature);
+      weatherIcon = weather.getWeatherIcon(condition);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    updateUI(widget.locationWeather);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,14 +58,35 @@ class _LocationScreenState extends State<LocationScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   FlatButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      updateUI(await weather.getCurrentLocationWeather());
+                    },
                     child: Icon(
                       Icons.near_me,
                       size: 50.0,
                     ),
                   ),
                   FlatButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      var result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return CityScreen();
+                        }),
+                      );
+                      if (result == null) return;
+                      showLoadingScreen();
+                      try {
+                        var updateResult = await weather
+                            .getLocationWeatherByName(result as String);
+                        updateUI(updateResult);
+                      } on Exception catch (e) {
+                        //TODO
+                        print(e);
+                      } finally {
+                        Navigator.pop(context);
+                      }
+                    },
                     child: Icon(
                       Icons.location_city,
                       size: 50.0,
@@ -49,11 +99,11 @@ class _LocationScreenState extends State<LocationScreen> {
                 child: Row(
                   children: <Widget>[
                     Text(
-                      '32°',
+                      '$temperature°',
                       style: kTempTextStyle,
                     ),
                     Text(
-                      '☀️',
+                      weatherIcon,
                       style: kConditionTextStyle,
                     ),
                   ],
@@ -62,7 +112,7 @@ class _LocationScreenState extends State<LocationScreen> {
               Padding(
                 padding: EdgeInsets.only(right: 15.0),
                 child: Text(
-                  "It's 🍦 time in San Francisco!",
+                  "$weatherMessage in $cityName",
                   textAlign: TextAlign.right,
                   style: kMessageTextStyle,
                 ),
@@ -72,5 +122,16 @@ class _LocationScreenState extends State<LocationScreen> {
         ),
       ),
     );
+  }
+
+  void showLoadingScreen() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Please Waite"),
+            content: Lottie.asset("assets/loading_gray.json"),
+          );
+        });
   }
 }

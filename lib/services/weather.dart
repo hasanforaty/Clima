@@ -1,4 +1,28 @@
+import 'package:flutter/cupertino.dart';
+import 'package:clima/services/location.dart';
+import 'package:clima/utilities/constants.dart';
+
+import 'networking.dart';
+
 class WeatherModel {
+  Future getCurrentLocationWeather() async {
+    var location = await Location.getCurrentLocation();
+    return await _getLocation(location);
+  }
+
+  Future getLocationWeatherByName(String name) async {
+    var location = await Location.getLocationByName(name: name);
+    return await _getLocation(location);
+  }
+
+  Future<dynamic> _getLocation(Location location) async {
+    var networkHelper = NetworkHelper(
+        "$kGetWeatherUrl?units=metric&lat=${location.latitude}&lon=${location.longitude}&appid=$kApiKey");
+    var result = await networkHelper.getData();
+    print(result);
+    return result;
+  }
+
   String getWeatherIcon(int condition) {
     if (condition < 300) {
       return '🌩';
