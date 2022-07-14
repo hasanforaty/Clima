@@ -4,6 +4,7 @@ import 'package:clima/utilities/constants.dart';
 import 'package:clima/services/weather.dart';
 import 'package:clima/services/location.dart';
 import 'package:lottie/lottie.dart';
+import 'package:clima/component/loading_dialog.dart';
 
 class LocationScreen extends StatefulWidget {
   final locationWeather;
@@ -75,7 +76,7 @@ class _LocationScreenState extends State<LocationScreen> {
                         }),
                       );
                       if (result == null) return;
-                      showLoadingScreen();
+                      showLoadingScreen(context);
                       try {
                         var updateResult = await weather
                             .getLocationWeatherByName(result as String);
@@ -122,16 +123,5 @@ class _LocationScreenState extends State<LocationScreen> {
         ),
       ),
     );
-  }
-
-  void showLoadingScreen() async {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("Please Waite"),
-            content: Lottie.asset("assets/loading_gray.json"),
-          );
-        });
   }
 }
