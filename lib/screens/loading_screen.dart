@@ -1,7 +1,4 @@
 import 'package:clima/screens/location_screen.dart';
-import 'package:clima/services/location.dart';
-import 'package:clima/services/networking.dart';
-import 'package:clima/utilities/constants.dart';
 import 'package:clima/services/weather.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';

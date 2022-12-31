@@ -1,4 +1,3 @@
-import 'package:clima/test/Test_main.dart';
 import 'package:flutter/material.dart';
 import 'package:clima/screens/loading_screen.dart';
 

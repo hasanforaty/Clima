@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:clima/services/location.dart';
 import 'package:clima/utilities/constants.dart';
 
